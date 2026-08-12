@@ -1250,7 +1250,8 @@ unsafe fn init<T: 'static>(
     pl_attribs.no_redirection_bitmap,
   );
   window_flags.set(WindowFlags::TRANSPARENT, attributes.transparent);
-  // WindowFlags::VISIBLE and MAXIMIZED are set down below after the window has been configured.
+  // WindowFlags::VISIBLE is set down below after the window has been configured.
+  window_flags.set(WindowFlags::MAXIMIZED, attributes.maximized);
   window_flags.set(WindowFlags::RESIZABLE, attributes.resizable);
   window_flags.set(WindowFlags::MINIMIZABLE, attributes.minimizable);
   window_flags.set(WindowFlags::MAXIMIZABLE, attributes.maximizable);
@@ -1360,7 +1361,6 @@ unsafe fn init<T: 'static>(
   };
 
   let fullscreen = attributes.fullscreen.clone();
-  let maximized = attributes.maximized;
   let menu = pl_attribs.menu;
 
   let mut initdata = InitData {
@@ -1399,14 +1399,12 @@ unsafe fn init<T: 'static>(
   // that we *must* have populated the `InitData.window` field.
   let window = initdata.window.unwrap();
 
-  // Need to set FULLSCREEN or MAXIMIZED after CreateWindowEx
+  // Need to set FULLSCREEN after CreateWindowEx
   // This is because if the size is changed in WM_CREATE, the restored size will be stored in that
   // size.
   if fullscreen.is_some() {
     window.set_fullscreen(fullscreen);
     force_window_active(window.hwnd());
-  } else if maximized {
-    window.set_maximized(true);
   }
 
   Ok(window)
